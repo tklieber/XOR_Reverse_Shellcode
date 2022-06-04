@@ -21,10 +21,11 @@ def handle_client(client):
     while True:
         data = client.recv(1024)
         if not data:
-            print('Erreur de reception. Aucune donnée reçu')
+            print('Erreur de reception. Aucune donnée reçu.\nFermeture du serveur...')
             serveur.close()
             break
         if data == b'exit\n':
+            serveur.close()
             break
         print(data)
     serveur.close()

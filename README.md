@@ -4,7 +4,9 @@ XOR_Reverse_Shellcode with client (victime) and server (attacker) in python <br>
 ## Two main programms 
  - client (victime) : tcp bind shellcode with (normally) a xor en/decrytion
  - server (attacker) : listener in python with xor en/decryption
-<br>
+
+----
+
 ## Client 
 
 sys_socket <br>
