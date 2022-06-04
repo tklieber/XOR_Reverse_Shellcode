@@ -1,3 +1,9 @@
+"""
+ Description            : TCP listener with handling of clients and xor encryption
+ Author                 : ESGI - 4SI2 - Groupe 4 : Tristan KLIEBER ; Quentin CHARLES ; Nicolas TAHON
+ Date                   : june 2022
+"""
+
 import socket
 import _thread
 
@@ -29,11 +35,10 @@ while True:
     try :
         data_to_send = input("Entrez ce que vous voulez envoyer ...\n")
         data_to_send = data_to_send + "\0"
-        #data_to_send =bytes(data_to_send, 'utf-8')
         data_to_send = data_to_send.encode('utf-8')
-        print(data_to_send)
+        # print(data_to_send)
         client.send(data_to_send)
     except KeyboardInterrupt:
-        print("\nProgramme interrompu par l'utilisateur")
+        print("\nProgramme interrompu par l'utilisateur\nServer closed...\n")
         serveur.close()
         break
