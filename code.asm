@@ -62,6 +62,9 @@ _read:
 		
 	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
+
+	; XOR here !!!!
+    ; xor rsi, 0xFF
 	mov r12, [rsi]          ; mov fd dans r12 pour l'utiliser plutard
 
 ; ---- (57) sys_fork ----

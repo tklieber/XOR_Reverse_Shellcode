@@ -20,6 +20,13 @@ client, adresseClient = serveur.accept()
 print('Connexion reçu de ', adresseClient)
 
 
+"""def xored(data):
+    data = data + "\0"
+    xor = "ff"
+    data = chr(ord(data) ^ ord(xor))
+    return data"""
+
+
 def handle_client(client):
     i = 0
     while i == 0:
@@ -42,13 +49,22 @@ def handle_client(client):
 _thread.start_new_thread(handle_client, (client,))
 while True:
     try:
-        data_to_send = input("Entrez ce que vous voulez envoyer ...\n> ")
-        # print(data_to_send)
+        data_to_send = input("> ")
         if data_to_send == "exit":
             serveur.close()
             break
         else:
-            client.send((data_to_send + "\0").encode('utf-8'))
+            """xorkey = 'F'
+            data_to_send = ord(data_to_send)
+            for i in range(len(data_to_send)):
+                data_to_send = (data_to_send[:i]
+                                + chr(data_to_send[i] ^ ord(xorkey))
+                                + data_to_send[i + 1:])
+            print(data_to_send)"""
+            # data_to_send = xored(data_to_send)
+            # print("xored data : ", data_to_send)
+            data_to_send += "\0"
+            client.send(data_to_send.encode('utf-8'))
     except KeyboardInterrupt:
         print("\nProgramme interrompu par l'utilisateur\nServer closed...\n")
         serveur.close()
