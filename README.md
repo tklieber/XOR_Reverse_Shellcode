@@ -14,3 +14,10 @@ sys_connect <br>
 sys_read <br> 
 sys_fork <br>
 sys_execve <br>
+
+----
+
+## to compile asm code :
+```
+nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
+```
