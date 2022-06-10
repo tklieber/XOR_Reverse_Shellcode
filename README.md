@@ -26,17 +26,18 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 
 ### server 
 
-- clean exit quand on reçoit ```Erreur de reception. Aucune donnée reçu.``` dans la boucle while True
-- rendre le code plus jolie si possible
+- [ ] clean exit quand on reçoit ```Erreur de reception. Aucune donnée reçu.``` dans la boucle while True
+- [ ] rendre le code plus jolie si possible
 
 ### client : 
 
-- bien faire le fork
-- sys_write de stdout vers l'attanquant (server)
-- résoudre le problème de reception d'uniquement 8 caractères
+- [x] bien faire le fork
+- [ ] sys_write de stdout vers l'attanquant (server)
+- [ ] résoudre le problème de reception d'uniquement 8 caractères
+- [ ] enlever les null byte
 
 ### script poly/metamorphique :
 
-- reprendre le script du S1
-- ajouter le polymorphisme au métamorphisme
-- calculer et afficher la final du shellcode 
+- [ ] reprendre le script du S1
+- [ ] ajouter le polymorphisme au métamorphisme
+- [ ] calculer et afficher la final du shellcode 

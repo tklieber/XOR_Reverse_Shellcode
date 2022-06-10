@@ -17,7 +17,7 @@ serveur.bind((ADRESSE, PORT))
 serveur.listen(1)
 print("Listening for a new TCP connection ...")
 client, adresseClient = serveur.accept()
-print('Connexion de ', adresseClient)
+print('Connexion reçu de ', adresseClient)
 
 
 def handle_client(client):
