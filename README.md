@@ -17,7 +17,26 @@ sys_execve <br>
 
 ----
 
-## to compile asm code :
+## Compile asm code :
 ```
 nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 ```
+----
+## To Do :
+
+### server 
+
+- clean exit quand on reçoit ```Erreur de reception. Aucune donnée reçu.``` dans la boucle while True
+- rendre le code plus jolie si possible
+
+### client : 
+
+- bien faire le fork
+- sys_write de stdout vers l'attanquant (server)
+- résoudre le problème de reception d'uniquement 8 caractères
+
+### script poly/metamorphique :
+
+- reprendre le script du S1
+- ajouter le polymorphisme au métamorphisme
+- calculer et afficher la final du shellcode 

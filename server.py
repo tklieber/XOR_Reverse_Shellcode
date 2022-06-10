@@ -1,3 +1,5 @@
+#!/bin/python3
+
 """
  Description            : TCP listener with handling of clients and xor encryption
  Author                 : ESGI - 4SI2 - Groupe 4 : Tristan KLIEBER ; Quentin CHARLES ; Nicolas TAHON
@@ -19,16 +21,19 @@ print('Connexion de ', adresseClient)
 
 
 def handle_client(client):
-    while True:
+    i = 0
+    while i == 0:
         data = client.recv(1024)
         if not data:
             print('Erreur de reception. Aucune donnée reçu.\nFermeture du serveur...')
             serveur.close()
             exit(1)
+            i = 1
             break
         if data == b'exit\n':
             serveur.close()
             exit(1)
+            i = 1
             break
         print(data)
     serveur.close()
