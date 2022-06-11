@@ -46,4 +46,3 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 
 ----
 peut-etre prendre dup2(1 et 2) lorsque ça rentre sur execve?
-pour les child process, possible de comparer le rélu
