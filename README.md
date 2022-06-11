@@ -42,7 +42,3 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 - [ ] reprendre le script du S1
 - [ ] ajouter le polymorphisme au métamorphisme
 - [ ] calculer et afficher la taille final du shellcode 
-
-
-----
-peut-etre prendre dup2(1 et 2) lorsque ça rentre sur execve?
