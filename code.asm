@@ -68,7 +68,7 @@ _read:
 
 	; XOR here !!!!
     ; xor rsi, 0xFF
-	mov r12, [rsi]          ; mov fd dans r12 pour l'utiliser plutard
+	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
 
 ; ---- (57) sys_fork ----
 _fork:
@@ -106,7 +106,7 @@ _execve:
 	push rcx			; push 0
 	
 	push r12			; push fd de sys_read
-	mov r12, rsp
+	mov r12, [rsp]      ; mov du contenu de r12 afin de prendre plus que 8byte
 	
 	push rcx			; push 0
 
