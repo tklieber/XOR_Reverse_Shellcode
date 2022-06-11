@@ -69,8 +69,7 @@ _read:
 	; XOR here !!!!
     ; xor rsi, 0xFF
 	mov r12, [rsi]          ; mov fd dans r12 pour l'utiliser plutard
-    xor rsi, rsi
-    
+
 ; ---- (57) sys_fork ----
 _fork:
     xor rax, rax
