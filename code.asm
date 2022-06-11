@@ -63,10 +63,14 @@ _read:
 	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
 
+	cmp rax, 0
+    jz _exit               ; loop in _read if receved is nothing
+
 	; XOR here !!!!
     ; xor rsi, 0xFF
 	mov r12, [rsi]          ; mov fd dans r12 pour l'utiliser plutard
-
+    xor rsi, rsi
+    
 ; ---- (57) sys_fork ----
 _fork:
     xor rax, rax
@@ -121,3 +125,13 @@ _execve:
 
     mov al, 59                      ; syscall 59 - execve
     syscall
+
+_exit:
+; ---- (3) sys_close (unsigned int fd) ----
+    mov al, 3
+    mov rdi, r15
+    syscall
+; ---- (60) sys_exit (int error_code) ----
+    mov       al, 60         ; system call for exit
+    xor       rdi, rdi                ; exit code 0
+    syscall                           ; invoke operating system to exit
