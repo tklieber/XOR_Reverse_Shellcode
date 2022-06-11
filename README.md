@@ -41,7 +41,7 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 
 - [ ] reprendre le script du S1
 - [ ] ajouter le polymorphisme au métamorphisme
-- [ ] calculer et afficher la final du shellcode 
+- [ ] calculer et afficher la taille final du shellcode 
 
 
 ----
