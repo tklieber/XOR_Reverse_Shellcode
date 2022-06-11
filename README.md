@@ -33,10 +33,10 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 
 - [x] bien faire le fork
 - [ ] sys_write de stdout vers l'attanquant (server)
-- [ ] résoudre le problème de reception d'uniquement 8 caractères
+- [x] résoudre le problème de reception d'uniquement 8 caractères
 - [ ] enlever les null byte
-- [x] faire que si l'input reçu est vide alors ça créé pas de child process (actuellement pas le cas. Actuellement nous créons des child à l'infinie, même si rien n'est envoyé)
-
+- [x] faire que si l'input reçu est vide alors ça créé pas de child process
+- [ ] XOR à implémenter : il faut xor chaque caractère
 ### script poly/metamorphique :
 
 - [ ] reprendre le script du S1

@@ -66,8 +66,7 @@ _read:
 	cmp rax, 0
     jz _exit               ; loop in _read if receved is nothing
 
-	; XOR here !!!!
-    ; xor rsi, 0xFF
+	; XOR here !!!! Loop à faire
 	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
 
 ; ---- (57) sys_fork ----
