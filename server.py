@@ -10,7 +10,7 @@ import socket
 import _thread
 
 ADRESSE = '0.0.0.0'
-PORT = 4444
+PORT = 1337
 
 serveur = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 serveur.bind((ADRESSE, PORT))
@@ -19,12 +19,14 @@ print("Listening for a new TCP connection ...")
 client, adresseClient = serveur.accept()
 print('Connexion reçu de ', adresseClient)
 
+def callexit():
+    exit(1)
 
-"""def xored(data):
+
+def xored(data):
     data = data + "\0"
-    xor = "ff"
-    data = chr(ord(data) ^ ord(xor))
-    return data"""
+    xorkey = "5" * len(data)
+    return ''.join([chr(ord(a) ^ ord(b)) for a, b in zip(data, xorkey)])
 
 
 def handle_client(client):
@@ -34,12 +36,12 @@ def handle_client(client):
         if not data:
             print('Erreur de reception. Aucune donnée reçu.\nFermeture du serveur...')
             serveur.close()
-            exit(1)
+            callexit()
             i = 1
             break
         if data == b'exit\n':
             serveur.close()
-            exit(1)
+            callexit()
             i = 1
             break
         print(data)
@@ -54,18 +56,14 @@ while True:
             serveur.close()
             break
         else:
-            """xorkey = 'F'
-            data_to_send = ord(data_to_send)
-            for i in range(len(data_to_send)):
-                data_to_send = (data_to_send[:i]
-                                + chr(data_to_send[i] ^ ord(xorkey))
-                                + data_to_send[i + 1:])
-            print(data_to_send)"""
-            # data_to_send = xored(data_to_send)
-            # print("xored data : ", data_to_send)
-            data_to_send += "\0"
+            data_to_send = xored(data_to_send)
+            print("xored data sent : ", data_to_send)
+            xored_string = data_to_send
+            xor_key = "555"
+            print("un-xored data : ", ''.join([chr(ord(a) ^ ord(b)) for a, b in zip(xored_string, xor_key)]))
             client.send(data_to_send.encode('utf-8'))
     except KeyboardInterrupt:
         print("\nProgramme interrompu par l'utilisateur\nServer closed...\n")
         serveur.close()
+        callexit()
         break
