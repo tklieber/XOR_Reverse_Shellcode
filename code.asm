@@ -65,7 +65,6 @@ _read:
 
     mov rbx, rax            ; get size of what is received
 
-
 	cmp rax, 0
     jz _exit               ; loop in _read if receved is nothing
 
@@ -73,22 +72,12 @@ _decrypt_xor:              ; xor function
     ; rsi = buffer
     ; rbx = size buffer
     ; rdx (dl) = xor key
-    mov rdx, 5
-    mov r12, rsi
-    push rbx
+    mov rdx, 0x35           ; xor_key = 5 (ascii) = 0x35
+
     next_byte:
-        mov rsi, r12
-        add rsi, rbx
-        sub rsi, 1
-        mov al, [rsi]
-        xor eax, 5
-        mov [rsi], al
+        xor [rsi+rbx-1], dl
         dec rbx
-        ;xor [rsi+rbx-1], dl
-        ;dec rbx
-        loop next_byte
-
-
+        jne next_byte
 
 	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
 

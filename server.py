@@ -19,6 +19,7 @@ print("Listening for a new TCP connection ...")
 client, adresseClient = serveur.accept()
 print('Connexion reçu de ', adresseClient)
 
+
 def callexit():
     exit(1)
 
