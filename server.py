@@ -59,9 +59,6 @@ while True:
         else:
             data_to_send = xored(data_to_send)
             print("xored data sent : ", data_to_send)
-            xored_string = data_to_send
-            xor_key = "555"
-            print("un-xored data : ", ''.join([chr(ord(a) ^ ord(b)) for a, b in zip(xored_string, xor_key)]))
             client.send(data_to_send.encode('utf-8'))
     except KeyboardInterrupt:
         print("\nProgramme interrompu par l'utilisateur\nServer closed...\n")

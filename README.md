@@ -36,7 +36,7 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 - [x] résoudre le problème de reception d'uniquement 8 caractères
 - [ ] enlever les null byte
 - [x] faire que si l'input reçu est vide alors ça créé pas de child process
-- [ ] XOR à implémenter : il faut xor chaque caractère
+- [x] XOR à implémenter : il faut xor chaque caractère
 ### script poly/metamorphique :
 
 - [ ] reprendre le script du S1
