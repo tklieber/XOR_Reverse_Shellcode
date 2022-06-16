@@ -66,7 +66,7 @@ _read:
     mov rbx, rax            ; get size of what is received
 
 	cmp rax, 0
-    jz _exit               ; loop in _read if receved is nothing
+    jz _exit               ; jump in exit if receved is nothing
 
 _decrypt_xor:              ; xor function
     ; rsi = buffer
