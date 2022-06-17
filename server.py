@@ -42,7 +42,7 @@ def handle_client(client):
         if data == b'exit\n':
             serveur.close()
             callexit()
-        elif data == b'error':
+        elif data == b'frkerror':
             print("Child process failed on creation\nPlease enter the message again")
         print(data)
 

