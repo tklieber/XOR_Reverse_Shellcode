@@ -37,6 +37,7 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 - [ ] enlever les null byte
 - [x] faire que si l'input reçu est vide alors ça créé pas de child process
 - [x] XOR à implémenter : il faut xor chaque caractère
+- [ ] enlever la partie .bss et call malloc
 ### script poly/metamorphique :
 
 - [ ] reprendre le script du S1
