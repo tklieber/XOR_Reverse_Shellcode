@@ -34,11 +34,13 @@ nasm -f elf64 -F stabs code.asm ; ld -o code.bin code.o
 - [x] bien faire le fork
 - [ ] sys_write de stdout vers l'attanquant (server)
 - [x] résoudre le problème de reception d'uniquement 8 caractères
-- [ ] enlever les null byte
+- [x] enlever les null byte
 - [x] faire que si l'input reçu est vide alors ça créé pas de child process
 - [x] XOR à implémenter : il faut xor chaque caractère
+
 ### script poly/metamorphique :
 
-- [ ] reprendre le script du S1
-- [ ] ajouter le polymorphisme au métamorphisme
-- [ ] calculer et afficher la taille final du shellcode 
+- [x] reprendre le script du S1
+- [ ] ajouter le polymorphisme 
+- [x] ajouter le métamorphisme
+- [x] calculer et afficher la taille final du shellcode 
